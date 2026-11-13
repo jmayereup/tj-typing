@@ -136,6 +136,12 @@ export function App() {
   const mobileInputRef = useRef<HTMLInputElement | null>(null);
   const activeClusterRef = useRef<HTMLSpanElement | null>(null);
   const isComposingRef = useRef(false);
+  const lastMobileValueRef = useRef('');
+  const cursorRef = useRef(cursor);
+
+  useEffect(() => {
+    cursorRef.current = cursor;
+  }, [cursor]);
 
   // Sync dark mode class & localStorage
   useEffect(() => {
@@ -176,6 +182,7 @@ export function App() {
   );
 
   const resetSession = useCallback(() => {
+    cursorRef.current = 0;
     setCursor(0);
     setErrors(0);
     setTotalKeystrokes(0);
@@ -183,6 +190,11 @@ export function App() {
     setEndTime(null);
     setWrongKeyCode(null);
     setShakePrompt(false);
+    isComposingRef.current = false;
+    lastMobileValueRef.current = '';
+    if (mobileInputRef.current) {
+      mobileInputRef.current.value = '';
+    }
   }, []);
 
   const handleSelectText = useCallback(
@@ -253,12 +265,15 @@ export function App() {
 
   const handleBackspace = useCallback(() => {
     if (isComplete) return;
-    setCursor((prev) => Math.max(0, prev - 1));
+    const next = Math.max(0, cursorRef.current - 1);
+    cursorRef.current = next;
+    setCursor(next);
   }, [isComplete]);
 
   const handleCharacterInput = useCallback(
     (typedChar: string, keyCode: string | null = null) => {
-      if (isComplete) return;
+      const currentCursor = cursorRef.current;
+      if (chars.length === 0 || currentCursor >= chars.length) return;
 
       const nowTs = Date.now();
       if (!startTime) {
@@ -268,9 +283,10 @@ export function App() {
 
       setTotalKeystrokes((prev) => prev + 1);
 
-      const expected = chars[cursor];
+      const expected = chars[currentCursor];
       if (typedChar === expected) {
-        const nextCursor = cursor + 1;
+        const nextCursor = currentCursor + 1;
+        cursorRef.current = nextCursor;
         setCursor(nextCursor);
         if (nextCursor >= chars.length) {
           setEndTime(nowTs);
@@ -280,7 +296,7 @@ export function App() {
         triggerWrongFlash(keyCode);
       }
     },
-    [chars, cursor, isComplete, startTime, triggerWrongFlash]
+    [chars, startTime, triggerWrongFlash]
   );
 
   // Auto-scroll active Thai cluster into view on mobile/long texts
@@ -301,35 +317,69 @@ export function App() {
     [handleCharacterInput]
   );
 
-  // Handle native mobile soft keyboard input
+  const syncMobileValue = useCallback(
+    (newValue: string) => {
+      const prevChars = Array.from(lastMobileValueRef.current);
+      const nextChars = Array.from(newValue);
+
+      let common = 0;
+      while (
+        common < prevChars.length &&
+        common < nextChars.length &&
+        prevChars[common] === nextChars[common]
+      ) {
+        common++;
+      }
+
+      const deletedCount = prevChars.length - common;
+      for (let i = 0; i < deletedCount; i++) {
+        handleBackspace();
+      }
+
+      const added = nextChars.slice(common).join('');
+      if (added) {
+        processInsertedText(added);
+      }
+
+      lastMobileValueRef.current = newValue;
+    },
+    [handleBackspace, processInsertedText]
+  );
+
+  // Handle native mobile soft keyboard input (including Android Gboard active IME composition)
   const handleMobileInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (isComposingRef.current) return;
       const val = e.target.value;
-      if (val) {
-        processInsertedText(val);
+      syncMobileValue(val);
+
+      // Only clear the input when not in active IME composition so Gboard doesn't lose its buffer
+      if (!isComposingRef.current && val) {
         e.target.value = '';
+        lastMobileValueRef.current = '';
       }
     },
-    [processInsertedText]
+    [syncMobileValue]
   );
 
   const handleMobileCompositionEnd = useCallback(
     (e: React.CompositionEvent<HTMLInputElement>) => {
       isComposingRef.current = false;
       const val = e.currentTarget.value;
-      if (val) {
-        processInsertedText(val);
-        e.currentTarget.value = '';
-      }
+      syncMobileValue(val);
+      e.currentTarget.value = '';
+      lastMobileValueRef.current = '';
     },
-    [processInsertedText]
+    [syncMobileValue]
   );
 
   const handleMobileBeforeInput = useCallback(
     (e: React.FormEvent<HTMLInputElement>) => {
       const nativeEvent = e.nativeEvent as InputEvent;
-      if (nativeEvent.inputType === 'deleteContentBackward') {
+      // When the hidden input is already empty, handle Backspace directly
+      if (
+        nativeEvent.inputType === 'deleteContentBackward' &&
+        e.currentTarget.value === ''
+      ) {
         e.preventDefault();
         handleBackspace();
       }
@@ -348,12 +398,17 @@ export function App() {
       const isMobileInputFocused =
         document.activeElement === mobileInputRef.current;
 
-      // Let mobile soft keyboard / IME handle unidentified or composing events via onInput
-      if (
-        isMobileInputFocused &&
-        (e.isComposing || e.key === 'Unidentified' || !e.code)
-      ) {
-        return;
+      // Let mobile soft keyboard / IME (e.g., Android Gboard) handle events via onInput/onCompositionEnd
+      if (isMobileInputFocused) {
+        if (
+          e.isComposing ||
+          e.key === 'Unidentified' ||
+          e.key === 'Process' ||
+          !e.code ||
+          (e.key.length === 1 && !/^[\x20-\x7E]$/.test(e.key))
+        ) {
+          return;
+        }
       }
 
       // Prevent Space, Enter, or arrows from triggering focused header controls
@@ -710,6 +765,7 @@ export function App() {
             ref={mobileInputRef}
             type="text"
             inputMode="text"
+            enterKeyHint="done"
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
@@ -721,7 +777,7 @@ export function App() {
               isComposingRef.current = true;
             }}
             onCompositionEnd={handleMobileCompositionEnd}
-            className="pointer-events-none absolute left-0 top-0 h-0 w-0 opacity-0 text-base"
+            className="pointer-events-none absolute left-4 top-4 h-px w-px opacity-0 text-base"
           />
 
           <p className="font-thai max-h-[28dvh] overflow-y-auto sm:max-h-none text-2xl leading-[2.2] tracking-wide sm:text-3xl sm:leading-[2.3]">
