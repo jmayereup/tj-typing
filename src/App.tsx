@@ -330,11 +330,17 @@ export function App() {
       <header className="bg-[#005522] text-white shadow-sm">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-3">
-            <img
-              src="/tj-logo-big-brighter.png"
-              alt="Teacher Jake Logo"
-              className="h-10 w-auto rounded shadow-inner object-contain"
-            />
+            <a
+              href="https://www.teacherjake.com/thai"
+              title="Back to Teacher Jake Thai"
+              className="shrink-0 transition-opacity hover:opacity-90"
+            >
+              <img
+                src="/tj-logo-big-brighter.png"
+                alt="Teacher Jake Logo"
+                className="h-10 w-auto rounded shadow-inner object-contain"
+              />
+            </a>
             <div>
               <h1 className="font-serif text-lg font-bold tracking-tight text-white sm:text-xl leading-tight">
                 Thai Typing Practice
