@@ -74,6 +74,7 @@ const THAI_FONTS: ThaiFontOption[] = [
 
 const THEME_STORAGE_KEY = 'tj-typing:theme';
 const FONT_STORAGE_KEY = 'tj-typing:thai-font';
+const TEXT_STORAGE_KEY = 'tj-typing:current-text-id';
 
 function getInitialDarkMode(): boolean {
   try {
@@ -98,6 +99,21 @@ function getInitialFontId(): string {
   return THAI_FONTS[0].id;
 }
 
+function getInitialText(customTexts: PracticeText[]): PracticeText {
+  try {
+    const savedId = localStorage.getItem(TEXT_STORAGE_KEY);
+    if (savedId) {
+      const found =
+        BUILTIN_TEXTS.find((t) => t.id === savedId) ??
+        customTexts.find((t) => t.id === savedId);
+      if (found) return found;
+    }
+  } catch {
+    // ignore
+  }
+  return BUILTIN_TEXTS[0];
+}
+
 function getIsTouchDevice(): boolean {
   if (typeof window === 'undefined') return false;
   return (
@@ -108,7 +124,9 @@ function getIsTouchDevice(): boolean {
 
 export function App() {
   const [customTexts, setCustomTexts] = useState<PracticeText[]>(() => loadCustomTexts());
-  const [currentItem, setCurrentItem] = useState<PracticeText>(BUILTIN_TEXTS[0]);
+  const [currentItem, setCurrentItem] = useState<PracticeText>(() =>
+    getInitialText(customTexts)
+  );
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
 
   // Appearance & Settings
@@ -163,6 +181,15 @@ export function App() {
       // ignore
     }
   }, [thaiFontId]);
+
+  // Sync current text ID to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(TEXT_STORAGE_KEY, currentItem.id);
+    } catch {
+      // ignore
+    }
+  }, [currentItem.id]);
 
   const normalizedText = useMemo(
     () => normalizeThaiText(currentItem.text),

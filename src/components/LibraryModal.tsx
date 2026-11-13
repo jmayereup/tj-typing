@@ -86,7 +86,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-[#005522] px-5 py-4 text-white">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-[#005522] px-5 py-4 text-white">
           <div className="flex items-center gap-2.5">
             <BookOpen className="h-5 w-5 text-emerald-200" />
             <h2 className="font-serif text-lg font-semibold">
@@ -104,7 +104,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
         </div>
 
         {/* Top Tabs */}
-        <div className="flex border-b border-slate-200 bg-slate-50 px-5 dark:border-slate-800 dark:bg-slate-900/70">
+        <div className="flex shrink-0 border-b border-slate-200 bg-slate-50 px-5 dark:border-slate-800 dark:bg-slate-900/70">
           <button
             type="button"
             onClick={() => setActiveTab('browse')}
@@ -132,9 +132,9 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
 
         {/* Body */}
         {activeTab === 'browse' ? (
-          <div className="flex flex-1 flex-col overflow-hidden">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {/* Category Filter Pills */}
-            <div className="flex flex-nowrap overflow-x-auto sm:flex-wrap gap-1.5 border-b border-slate-200 bg-slate-50/70 px-4 sm:px-5 py-3 dark:border-slate-800 dark:bg-slate-900/50">
+            <div className="flex shrink-0 flex-wrap gap-1.5 border-b border-slate-200 bg-slate-50/70 px-4 sm:px-5 py-3 dark:border-slate-800 dark:bg-slate-900/50">
               <button
                 type="button"
                 onClick={() => setSelectedCategory('all')}
@@ -164,7 +164,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
             </div>
 
             {/* Text Cards */}
-            <div className="flex-1 space-y-2.5 overflow-y-auto p-5">
+            <div className="flex-1 space-y-2.5 overflow-y-auto overscroll-contain p-4 sm:p-5">
               {filteredTexts.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
                   No texts in this category yet.{' '}
