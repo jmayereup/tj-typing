@@ -804,6 +804,12 @@ export function App() {
             })}
           </p>
 
+          {currentItem.translation && (
+            <p className="mt-2.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              {currentItem.translation}
+            </p>
+          )}
+
           {/* Next Key Callout or Completion Banner */}
           <div className="mt-3 sm:mt-5 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 border-t border-slate-100 pt-3 sm:pt-4 dark:border-slate-800">
             {isComplete ? (

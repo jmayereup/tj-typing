@@ -213,6 +213,11 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                         <p className="font-thai mt-1.5 line-clamp-2 text-base text-slate-600 dark:text-slate-300">
                           {item.text}
                         </p>
+                        {item.translation && (
+                          <p className="mt-1 line-clamp-2 text-xs text-slate-500 dark:text-slate-400">
+                            {item.translation}
+                          </p>
+                        )}
                       </button>
 
                       {item.category === 'custom' && (
