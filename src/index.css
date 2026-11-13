@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Inter', 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
+  }
+
+  .font-thai {
+    font-family: 'Noto Sans Thai', 'Inter', system-ui, sans-serif;
+  }
+
+  .font-mono-key {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+.animate-shake {
+  animation: shake 0.22s ease-in-out;
+}
