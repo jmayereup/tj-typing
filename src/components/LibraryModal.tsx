@@ -78,11 +78,11 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-950/75 p-4 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-950/75 p-2 sm:p-4 backdrop-blur-xs"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900"
+        className="flex max-h-[92dvh] sm:max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
@@ -134,11 +134,11 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
         {activeTab === 'browse' ? (
           <div className="flex flex-1 flex-col overflow-hidden">
             {/* Category Filter Pills */}
-            <div className="flex flex-wrap gap-1.5 border-b border-slate-200 bg-slate-50/70 px-5 py-3 dark:border-slate-800 dark:bg-slate-900/50">
+            <div className="flex flex-nowrap overflow-x-auto sm:flex-wrap gap-1.5 border-b border-slate-200 bg-slate-50/70 px-4 sm:px-5 py-3 dark:border-slate-800 dark:bg-slate-900/50">
               <button
                 type="button"
                 onClick={() => setSelectedCategory('all')}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                className={`shrink-0 rounded-full px-3 py-1.5 sm:py-1 text-xs font-medium transition-colors ${
                   selectedCategory === 'all'
                     ? 'bg-[#005522] text-white dark:bg-emerald-600'
                     : 'bg-slate-200/80 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
@@ -151,7 +151,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                  className={`shrink-0 rounded-full px-3 py-1.5 sm:py-1 text-xs font-medium transition-colors ${
                     selectedCategory === cat
                       ? 'bg-[#005522] text-white dark:bg-emerald-600'
                       : 'bg-slate-200/80 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
@@ -243,7 +243,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
                 placeholder="e.g., Thai News Snippet or Vocabulary List"
-                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#005522] focus:outline-none focus:ring-2 focus:ring-[#005522]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-400/20"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base sm:text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#005522] focus:outline-none focus:ring-2 focus:ring-[#005522]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-400/20"
               />
             </div>
 
@@ -283,12 +283,12 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-end gap-2.5 pt-2">
+            <div className="flex flex-col-reverse sm:flex-row sm:flex-wrap items-center justify-end gap-2.5 pt-2">
               <button
                 type="button"
                 disabled={!normalizedCustom}
                 onClick={handleQuickPractice}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 <Play className="h-4 w-4" />
                 Practice Once (Don&apos;t Save)
@@ -296,7 +296,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
               <button
                 type="submit"
                 disabled={!normalizedCustom}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#005522] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00441b] disabled:opacity-40 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl bg-[#005522] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00441b] disabled:opacity-40 dark:bg-emerald-600 dark:hover:bg-emerald-500"
               >
                 <Plus className="h-4 w-4" />
                 Save &amp; Practice
