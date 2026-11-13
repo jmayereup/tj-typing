@@ -204,6 +204,7 @@ export function App() {
   const {
     ttsState,
     availableVoices,
+    allVoices,
     selectedVoiceName,
     setSelectedVoiceName,
     toggleTTS,
@@ -993,6 +994,7 @@ export function App() {
         isOpen={isVoiceModalOpen}
         onClose={() => setIsVoiceModalOpen(false)}
         voices={availableVoices}
+        allVoices={allVoices}
         selectedVoiceName={selectedVoiceName}
         onSelectVoice={setSelectedVoiceName}
       />

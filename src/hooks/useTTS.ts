@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { getVoicesForLang, getBestVoice } from '../utils/tts';
+import { getVoicesForLang, getAllVoicesSorted, getBestVoice } from '../utils/tts';
 
 const VOICE_STORAGE_KEY = 'tj-typing:tts-voice-th-TH';
 
@@ -19,6 +19,7 @@ export const useTTS = ({ defaultText, langCode = 'th-TH' }: UseTTSProps) => {
     rate: 1.0,
   });
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [allVoicesList, setAllVoicesList] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceName, setSelectedVoiceName] = useState<string | null>(null);
 
   const userHasSelectedVoice = useRef(false);
@@ -33,7 +34,8 @@ export const useTTS = ({ defaultText, langCode = 'th-TH' }: UseTTSProps) => {
       const voices = getVoicesForLang(langCode);
       setAvailableVoices(voices);
 
-      const allVoices = window.speechSynthesis.getVoices();
+      const allVoices = getAllVoicesSorted(langCode);
+      setAllVoicesList(allVoices);
       let savedVoiceName: string | null = null;
       try {
         savedVoiceName = localStorage.getItem(VOICE_STORAGE_KEY);
@@ -111,15 +113,7 @@ export const useTTS = ({ defaultText, langCode = 'th-TH' }: UseTTSProps) => {
       if (selectedVoiceName) {
         const selected = voices.find((v) => v.name === selectedVoiceName);
         if (selected) {
-          const reqPrefix = langCode.split(/[-_]/)[0].toLowerCase();
-          const voicePrefix = selected.lang.split(/[-_]/)[0].toLowerCase();
-          if (
-            reqPrefix === voicePrefix ||
-            selected.name.toLowerCase().includes('multilingual') ||
-            selected.name.toLowerCase().includes('multi-lingual')
-          ) {
-            voiceToUse = selected;
-          }
+          voiceToUse = selected;
         }
       }
 
@@ -161,6 +155,7 @@ export const useTTS = ({ defaultText, langCode = 'th-TH' }: UseTTSProps) => {
   return {
     ttsState,
     availableVoices,
+    allVoices: allVoicesList,
     selectedVoiceName,
     setSelectedVoiceName: handleSetSelectedVoiceName,
     toggleTTS,

@@ -10,14 +10,18 @@ export const getVoiceQualityScore = (
 
   // 1. Language matching precision
   if (lang === target) {
-    score += 10;
+    score += 30;
   } else if (
     lang.startsWith(targetPrimary) ||
     targetPrimary.startsWith(lang.split('-')[0])
   ) {
-    score += 5;
+    score += 20;
   } else if (name.includes('multilingual') || name.includes('multi-lingual')) {
-    score += 5;
+    // Prefer English-base multilingual voices over other languages (e.g., German)
+    score += lang.startsWith('en') ? 12 : 5;
+  } else if (lang.startsWith('en')) {
+    // Fallback to English before other non-target languages
+    score -= 50;
   } else {
     score -= 100;
   }
@@ -56,9 +60,19 @@ export const getVoiceQualityScore = (
   return score;
 };
 
+export const getAllVoicesSorted = (lang: string = 'th-TH'): SpeechSynthesisVoice[] => {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return [];
+  const voices = window.speechSynthesis.getVoices();
+  return [...voices].sort(
+    (a, b) => getVoiceQualityScore(b, lang) - getVoiceQualityScore(a, lang)
+  );
+};
+
 export const getBestVoice = (lang: string = 'th-TH'): SpeechSynthesisVoice | null => {
   const matching = getVoicesForLang(lang);
-  return matching[0] || null;
+  if (matching.length > 0) return matching[0];
+  const all = getAllVoicesSorted(lang);
+  return all[0] || null;
 };
 
 export const getVoicesForLang = (lang: string = 'th-TH'): SpeechSynthesisVoice[] => {

@@ -6,6 +6,7 @@ interface VoiceSelectorModalProps {
   isOpen: boolean;
   onClose: () => void;
   voices: SpeechSynthesisVoice[];
+  allVoices?: SpeechSynthesisVoice[];
   selectedVoiceName: string | null;
   onSelectVoice: (voiceName: string) => void;
 }
@@ -14,10 +15,12 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
   isOpen,
   onClose,
   voices,
+  allVoices = [],
   selectedVoiceName,
   onSelectVoice,
 }) => {
   const [testPlaying, setTestPlaying] = useState<string | null>(null);
+  const [showAllVoices, setShowAllVoices] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -79,18 +82,25 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
 
         {/* Voice List */}
         <div className="flex-1 space-y-2 overflow-y-auto p-4">
-          {voices.length === 0 ? (
+          {voices.length === 0 && allVoices.length === 0 ? (
             <div className="py-10 px-4 text-center space-y-2">
               <Globe className="mx-auto mb-3 h-10 w-10 text-slate-300 dark:text-slate-600" />
               <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                No Thai (th-TH) voices found in this browser.
+                No voices found in this browser.
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Your browser/OS has no Thai text-to-speech voice installed, so speech falls back to your default system voice. Install a Thai voice in your OS settings or use a browser with Google Thai voices.
+                Your browser/OS has no text-to-speech voices available.
               </p>
             </div>
           ) : (
-            voices.map((voice) => {
+            <>
+              {voices.length === 0 && allVoices.length > 0 && (
+                <div className="mb-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-xs text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-200">
+                  No Thai (th-TH) or multilingual voices found. Showing all available system voices (English preferred by default).
+                </div>
+              )}
+
+              {(voices.length === 0 || showAllVoices ? allVoices : voices).map((voice) => {
               const isSelected = voice.name === selectedVoiceName;
               const vName = voice.name.toLowerCase();
               const isNatural =
@@ -162,7 +172,22 @@ export const VoiceSelectorModal: React.FC<VoiceSelectorModalProps> = ({
                   </div>
                 </div>
               );
-            })
+            })}
+
+              {voices.length > 0 && allVoices.length > voices.length && (
+                <div className="pt-2 text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllVoices((v) => !v)}
+                    className="text-xs font-medium text-slate-500 underline-offset-2 hover:text-[#005522] hover:underline dark:text-slate-400 dark:hover:text-emerald-300"
+                  >
+                    {showAllVoices
+                      ? `Show only Thai & multilingual voices (${voices.length})`
+                      : `Show all system voices (${allVoices.length})`}
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
 
