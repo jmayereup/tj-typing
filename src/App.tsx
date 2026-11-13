@@ -15,7 +15,11 @@ import {
 } from 'lucide-react';
 import { HintKeyboard } from './components/HintKeyboard';
 import { LibraryModal } from './components/LibraryModal';
+import { AudioControls } from './components/AudioControls';
+import { VoiceSelectorModal } from './components/VoiceSelectorModal';
 import { KEDMANEE_BY_CODE, findKeyForChar } from './data/kedmaneeLayout';
+import { useTTS } from './hooks/useTTS';
+import { shouldShowAudioControls } from './utils/tts';
 import {
   BUILTIN_TEXTS,
   CATEGORY_LABELS,
@@ -128,6 +132,7 @@ export function App() {
     getInitialText(customTexts)
   );
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
 
   // Appearance & Settings
   const [isDark, setIsDark] = useState<boolean>(() => getInitialDarkMode());
@@ -195,6 +200,18 @@ export function App() {
     () => normalizeThaiText(currentItem.text),
     [currentItem.text]
   );
+  const showAudioControls = useMemo(() => shouldShowAudioControls(), []);
+  const {
+    ttsState,
+    availableVoices,
+    selectedVoiceName,
+    setSelectedVoiceName,
+    toggleTTS,
+    stopTTS,
+  } = useTTS({
+    defaultText: normalizedText,
+    langCode: 'th-TH',
+  });
   const chars = useMemo(() => Array.from(normalizedText), [normalizedText]);
   const clusters = useMemo(
     () => segmentThaiGraphemes(normalizedText),
@@ -209,6 +226,7 @@ export function App() {
   );
 
   const resetSession = useCallback(() => {
+    stopTTS();
     cursorRef.current = 0;
     setCursor(0);
     setErrors(0);
@@ -222,7 +240,7 @@ export function App() {
     if (mobileInputRef.current) {
       mobileInputRef.current.value = '';
     }
-  }, []);
+  }, [stopTTS]);
 
   const handleSelectText = useCallback(
     (item: PracticeText) => {
@@ -416,7 +434,7 @@ export function App() {
 
   // Global keyboard listener for typing practice
   useEffect(() => {
-    if (isLibraryOpen) return;
+    if (isLibraryOpen || isVoiceModalOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -488,6 +506,7 @@ export function App() {
     handleCharacterInput,
     isComplete,
     isLibraryOpen,
+    isVoiceModalOpen,
     resetSession,
     virtualThai,
   ]);
@@ -522,7 +541,8 @@ export function App() {
             </a>
             <div className="min-w-0">
               <h1 className="truncate font-serif text-base font-bold tracking-tight text-white sm:text-xl leading-tight">
-                Thai Typing Practice
+                <span className="sm:hidden">Thai Typing</span>
+                <span className="hidden sm:inline">Thai Typing Practice</span>
               </h1>
               <p className="hidden sm:block text-xs text-emerald-100/80">
                 Kedmanee layout with visual key hints
@@ -716,11 +736,11 @@ export function App() {
             <button
               type="button"
               onClick={resetSession}
-              className="sm:hidden shrink-0 inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              className="sm:hidden shrink-0 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-slate-50 p-1.5 text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
               title="Restart text"
+              aria-label="Restart text"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              Reset
             </button>
           </div>
 
@@ -806,6 +826,18 @@ export function App() {
             onCompositionEnd={handleMobileCompositionEnd}
             className="pointer-events-none absolute left-4 top-4 h-px w-px opacity-0 text-base"
           />
+
+          {showAudioControls && (
+            <div className="mb-2 sm:mb-3 flex items-center justify-end">
+              <AudioControls
+                onVoiceOpen={() => setIsVoiceModalOpen(true)}
+                onSlowToggle={() => toggleTTS(0.6)}
+                onListenToggle={() => toggleTTS(1.0)}
+                ttsStatus={ttsState.status}
+                currentRate={ttsState.rate}
+              />
+            </div>
+          )}
 
           <p className="font-thai max-h-[28dvh] overflow-y-auto sm:max-h-none text-2xl leading-[2.2] tracking-wide sm:text-3xl sm:leading-[2.3]">
             {clusters.map((cluster, idx) => {
@@ -954,6 +986,15 @@ export function App() {
         onSelectText={handleSelectText}
         onAddCustomText={handleAddCustomText}
         onDeleteCustomText={handleDeleteCustomText}
+      />
+
+      {/* Thai TTS Voice Selector Modal */}
+      <VoiceSelectorModal
+        isOpen={isVoiceModalOpen}
+        onClose={() => setIsVoiceModalOpen(false)}
+        voices={availableVoices}
+        selectedVoiceName={selectedVoiceName}
+        onSelectVoice={setSelectedVoiceName}
       />
     </div>
   );
