@@ -1,16 +1,31 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", "Noto Sans Thai", system-ui, -apple-system, sans-serif;
+  --font-serif: "Lora", Georgia, serif;
+}
+
+:root {
+  --font-thai: "Noto Sans Thai", "Inter", system-ui, sans-serif;
+}
+
 @layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
+
   body {
-    font-family: 'Inter', 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
+    font-family: var(--font-sans);
   }
 
   .font-thai {
-    font-family: 'Noto Sans Thai', 'Inter', system-ui, sans-serif;
+    font-family: var(--font-thai);
   }
 
   .font-mono-key {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   }
 }
 

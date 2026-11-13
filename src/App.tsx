@@ -3,10 +3,12 @@ import {
   BookOpen,
   CheckCircle2,
   ChevronRight,
-  Keyboard,
+  Moon,
   Palette,
   RotateCcw,
   Sparkles,
+  Sun,
+  Type,
 } from 'lucide-react';
 import { HintKeyboard } from './components/HintKeyboard';
 import { LibraryModal } from './components/LibraryModal';
@@ -38,12 +40,69 @@ const IGNORED_CODES = new Set([
   'Escape',
 ]);
 
+interface ThaiFontOption {
+  id: string;
+  label: string;
+  cssValue: string;
+}
+
+const THAI_FONTS: ThaiFontOption[] = [
+  {
+    id: 'noto',
+    label: 'Noto Sans Thai (Looped)',
+    cssValue: '"Noto Sans Thai", "Inter", system-ui, sans-serif',
+  },
+  {
+    id: 'sarabun',
+    label: 'Sarabun (Classic)',
+    cssValue: '"Sarabun", "Inter", system-ui, sans-serif',
+  },
+  {
+    id: 'ibm',
+    label: 'IBM Plex Sans Thai',
+    cssValue: '"IBM Plex Sans Thai", "Inter", system-ui, sans-serif',
+  },
+  {
+    id: 'prompt',
+    label: 'Prompt (Loopless)',
+    cssValue: '"Prompt", "Inter", system-ui, sans-serif',
+  },
+];
+
+const THEME_STORAGE_KEY = 'tj-typing:theme';
+const FONT_STORAGE_KEY = 'tj-typing:thai-font';
+
+function getInitialDarkMode(): boolean {
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === 'dark') return true;
+    if (saved === 'light') return false;
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+  } catch {
+    return false;
+  }
+}
+
+function getInitialFontId(): string {
+  try {
+    const saved = localStorage.getItem(FONT_STORAGE_KEY);
+    if (saved && THAI_FONTS.some((f) => f.id === saved)) {
+      return saved;
+    }
+  } catch {
+    // ignore
+  }
+  return THAI_FONTS[0].id;
+}
+
 export function App() {
   const [customTexts, setCustomTexts] = useState<PracticeText[]>(() => loadCustomTexts());
   const [currentItem, setCurrentItem] = useState<PracticeText>(BUILTIN_TEXTS[0]);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
 
-  // Settings
+  // Appearance & Settings
+  const [isDark, setIsDark] = useState<boolean>(() => getInitialDarkMode());
+  const [thaiFontId, setThaiFontId] = useState<string>(() => getInitialFontId());
   const [virtualThai, setVirtualThai] = useState(true);
   const [showQwerty, setShowQwerty] = useState(true);
   const [showFingerColors, setShowFingerColors] = useState(false);
@@ -59,6 +118,27 @@ export function App() {
   const [shakePrompt, setShakePrompt] = useState(false);
 
   const wrongTimeoutRef = useRef<number | null>(null);
+
+  // Sync dark mode class & localStorage
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light');
+    } catch {
+      // ignore
+    }
+  }, [isDark]);
+
+  // Sync Thai font CSS variable & localStorage
+  useEffect(() => {
+    const font = THAI_FONTS.find((f) => f.id === thaiFontId) ?? THAI_FONTS[0];
+    document.documentElement.style.setProperty('--font-thai', font.cssValue);
+    try {
+      localStorage.setItem(FONT_STORAGE_KEY, font.id);
+    } catch {
+      // ignore
+    }
+  }, [thaiFontId]);
 
   const normalizedText = useMemo(
     () => normalizeThaiText(currentItem.text),
@@ -161,10 +241,10 @@ export function App() {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       if (IGNORED_CODES.has(e.code)) return;
 
-      // Prevent Space or Enter from triggering focused header buttons
+      // Prevent Space, Enter, or arrows from triggering focused header controls
       if (document.activeElement instanceof HTMLElement) {
         const tag = document.activeElement.tagName;
-        if (tag === 'BUTTON' || tag === 'INPUT') {
+        if (tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT') {
           document.activeElement.blur();
         }
       }
@@ -245,33 +325,55 @@ export function App() {
   const progressPct = chars.length > 0 ? Math.round((cursor / chars.length) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6 sm:px-6 lg:py-8">
-        {/* Top Bar */}
-        <header className="flex flex-wrap items-center justify-between gap-3">
+    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 flex flex-col transition-colors">
+      {/* Teacher Jake Branded Top Navbar */}
+      <header className="bg-[#005522] text-white shadow-sm">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/15 text-amber-400 ring-1 ring-amber-400/30">
-              <Keyboard className="h-5 w-5" />
-            </div>
+            <img
+              src="/tj-logo-big-brighter.png"
+              alt="Teacher Jake Logo"
+              className="h-10 w-auto rounded shadow-inner object-contain"
+            />
             <div>
-              <h1 className="text-lg font-bold tracking-tight text-slate-100 sm:text-xl">
+              <h1 className="font-serif text-lg font-bold tracking-tight text-white sm:text-xl leading-tight">
                 Thai Typing Practice
               </h1>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-emerald-100/80">
                 Kedmanee layout with visual key hints
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {/* Thai Font Selector */}
+            <label className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-white/15">
+              <Type className="h-3.5 w-3.5 text-emerald-100" />
+              <select
+                aria-label="Thai font"
+                value={thaiFontId}
+                onChange={(e) => {
+                  setThaiFontId(e.target.value);
+                  e.target.blur();
+                }}
+                className="bg-transparent text-xs font-medium text-white focus:outline-none cursor-pointer [&>option]:bg-slate-900 [&>option]:text-white"
+              >
+                {THAI_FONTS.map((font) => (
+                  <option key={font.id} value={font.id}>
+                    {font.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <button
               type="button"
               onClick={() => setVirtualThai((v) => !v)}
               title="Maps your physical US/QWERTY keys directly to Thai Kedmanee so you don't need to switch OS input"
-              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${
                 virtualThai
-                  ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300'
-                  : 'border-slate-700 bg-slate-900 text-slate-300 hover:bg-slate-800'
+                  ? 'border-emerald-300/60 bg-white/20 text-white'
+                  : 'border-white/20 bg-white/10 text-emerald-100/80 hover:bg-white/15'
               }`}
             >
               <Sparkles className="h-3.5 w-3.5" />
@@ -281,10 +383,10 @@ export function App() {
             <button
               type="button"
               onClick={() => setShowQwerty((v) => !v)}
-              className={`rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
+              className={`rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${
                 showQwerty
-                  ? 'border-slate-600 bg-slate-800 text-slate-100'
-                  : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-200'
+                  ? 'border-white/30 bg-white/15 text-white'
+                  : 'border-white/15 bg-transparent text-emerald-100/75 hover:bg-white/10'
               }`}
             >
               QWERTY: {showQwerty ? 'ON' : 'OFF'}
@@ -293,10 +395,10 @@ export function App() {
             <button
               type="button"
               onClick={() => setShowFingerColors((v) => !v)}
-              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium transition-colors ${
                 showFingerColors
-                  ? 'border-amber-500/40 bg-amber-500/15 text-amber-300'
-                  : 'border-slate-800 bg-slate-900 text-slate-400 hover:text-slate-200'
+                  ? 'border-amber-300/60 bg-amber-400/20 text-amber-100'
+                  : 'border-white/15 bg-transparent text-emerald-100/75 hover:bg-white/10'
               }`}
             >
               <Palette className="h-3.5 w-3.5" />
@@ -305,23 +407,35 @@ export function App() {
 
             <button
               type="button"
+              onClick={() => setIsDark((d) => !d)}
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 p-1.5 text-white hover:bg-white/20 transition-colors"
+            >
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
+            <button
+              type="button"
               onClick={() => setIsLibraryOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-400 px-3.5 py-2 text-xs font-semibold text-slate-950 shadow-sm hover:bg-amber-300"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-semibold text-[#005522] shadow-xs hover:bg-emerald-50"
             >
               <BookOpen className="h-3.5 w-3.5" />
               Texts &amp; Custom
             </button>
           </div>
-        </header>
+        </div>
+      </header>
 
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 px-4 py-6 sm:px-6 lg:py-8">
         {/* Active Text Info + Stats */}
-        <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-800/90 bg-slate-900/60 px-4 py-3">
+        <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-xs dark:border-slate-800 dark:bg-slate-900/70">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="rounded-md bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-300">
+              <span className="rounded-md border border-[#005522]/15 bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-[#005522] dark:border-emerald-500/30 dark:bg-emerald-950/60 dark:text-emerald-300">
                 {CATEGORY_LABELS[currentItem.category]}
               </span>
-              <h2 className="truncate text-sm font-semibold text-slate-100">
+              <h2 className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
                 {currentItem.title}
               </h2>
             </div>
@@ -329,34 +443,40 @@ export function App() {
 
           <div className="flex flex-wrap items-center gap-4 text-xs sm:gap-5">
             <div>
-              <span className="text-slate-400">Progress </span>
-              <span className="font-mono-key font-semibold text-slate-100">
+              <span className="text-slate-500 dark:text-slate-400">Progress </span>
+              <span className="font-mono-key font-semibold text-slate-800 dark:text-slate-100">
                 {cursor}/{chars.length}
               </span>
             </div>
             <div>
-              <span className="text-slate-400">CPM </span>
-              <span className="font-mono-key font-semibold text-amber-300">{cpm}</span>
+              <span className="text-slate-500 dark:text-slate-400">CPM </span>
+              <span className="font-mono-key font-semibold text-[#005522] dark:text-emerald-400">
+                {cpm}
+              </span>
             </div>
             <div>
-              <span className="text-slate-400">WPM </span>
-              <span className="font-mono-key font-semibold text-slate-100">{wpm}</span>
+              <span className="text-slate-500 dark:text-slate-400">WPM </span>
+              <span className="font-mono-key font-semibold text-slate-800 dark:text-slate-100">
+                {wpm}
+              </span>
             </div>
             <div>
-              <span className="text-slate-400">Accuracy </span>
-              <span className="font-mono-key font-semibold text-emerald-400">
+              <span className="text-slate-500 dark:text-slate-400">Accuracy </span>
+              <span className="font-mono-key font-semibold text-emerald-700 dark:text-emerald-400">
                 {accuracy}%
               </span>
             </div>
             <div>
-              <span className="text-slate-400">Errors </span>
-              <span className="font-mono-key font-semibold text-rose-400">{errors}</span>
+              <span className="text-slate-500 dark:text-slate-400">Errors </span>
+              <span className="font-mono-key font-semibold text-rose-600 dark:text-rose-400">
+                {errors}
+              </span>
             </div>
 
             <button
               type="button"
               onClick={resetSession}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-700"
+              className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               title="Restart text"
             >
               <RotateCcw className="h-3.5 w-3.5" />
@@ -366,17 +486,17 @@ export function App() {
         </section>
 
         {/* Progress Bar */}
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-900">
+        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all duration-150"
+            className="h-full rounded-full bg-[#005522] dark:bg-emerald-500 transition-all duration-150"
             style={{ width: `${progressPct}%` }}
           />
         </div>
 
         {/* Typing Prompt Card */}
         <section
-          className={`relative rounded-2xl border border-slate-800 bg-slate-900/80 p-5 sm:p-7 shadow-lg transition-transform ${
-            shakePrompt ? 'animate-shake border-rose-500/50' : ''
+          className={`relative rounded-2xl border border-slate-200 bg-white p-5 sm:p-7 shadow-sm transition-transform dark:border-slate-800 dark:bg-slate-900/80 ${
+            shakePrompt ? 'animate-shake border-rose-400 dark:border-rose-500/70' : ''
           }`}
         >
           <p className="font-thai text-2xl leading-[2.2] tracking-wide sm:text-3xl sm:leading-[2.3]">
@@ -390,10 +510,10 @@ export function App() {
                   key={`${idx}-${cluster.startIndex}`}
                   className={
                     isDone
-                      ? 'text-emerald-400'
+                      ? 'text-[#005522] dark:text-emerald-400'
                       : isCurrent
-                      ? 'rounded-md bg-amber-400/20 px-0.5 text-amber-200 underline decoration-amber-400 decoration-2 underline-offset-8'
-                      : 'text-slate-300'
+                      ? 'rounded-md bg-emerald-100/90 px-0.5 text-[#005522] font-semibold underline decoration-[#005522] decoration-2 underline-offset-8 dark:bg-emerald-500/20 dark:text-emerald-200 dark:decoration-emerald-400'
+                      : 'text-slate-400 dark:text-slate-400'
                   }
                 >
                   {cluster.text}
@@ -403,10 +523,10 @@ export function App() {
           </p>
 
           {/* Next Key Callout or Completion Banner */}
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800/80 pt-4">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
             {isComplete ? (
               <div className="flex w-full flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5 text-emerald-300">
+                <div className="flex items-center gap-2.5 text-[#005522] dark:text-emerald-300">
                   <CheckCircle2 className="h-5 w-5" />
                   <span className="text-sm font-semibold">
                     Completed! {cpm} CPM ({wpm} WPM) • {accuracy}% accuracy
@@ -416,7 +536,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={resetSession}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-medium text-slate-200 hover:bg-slate-700"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
                     Practice Again (Enter)
@@ -424,7 +544,7 @@ export function App() {
                   <button
                     type="button"
                     onClick={handleNextText}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-amber-400 px-3.5 py-2 text-xs font-semibold text-slate-950 hover:bg-amber-300"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#005522] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#00441b] dark:bg-emerald-600 dark:hover:bg-emerald-500"
                   >
                     Next Text
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -434,37 +554,37 @@ export function App() {
             ) : (
               <>
                 <div className="flex items-center gap-3">
-                  <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400">
                     Next Character
                   </span>
                   {nextChar && (
-                    <span className="font-thai inline-flex min-w-10 items-center justify-center rounded-lg border border-amber-400/40 bg-amber-400/15 px-3 py-1 text-xl font-bold text-amber-300">
+                    <span className="font-thai inline-flex min-w-10 items-center justify-center rounded-lg border border-[#005522]/30 bg-emerald-50 px-3 py-1 text-xl font-bold text-[#005522] dark:border-emerald-500/40 dark:bg-emerald-950/60 dark:text-emerald-300">
                       {formatCharPreview(nextChar)}
                     </span>
                   )}
                   {nextHint ? (
-                    <span className="text-xs text-slate-300">
+                    <span className="text-xs text-slate-600 dark:text-slate-300">
                       Press{' '}
                       {nextHint.shiftRequired && (
                         <>
-                          <kbd className="rounded border border-sky-400/50 bg-sky-400/15 px-1.5 py-0.5 font-mono-key text-[11px] font-semibold text-sky-300">
+                          <kbd className="rounded border border-amber-400 bg-amber-100 px-1.5 py-0.5 font-mono-key text-[11px] font-semibold text-amber-950 dark:border-amber-400/50 dark:bg-amber-400/20 dark:text-amber-200">
                             {nextHint.shiftCode === 'ShiftLeft' ? 'Left Shift' : 'Right Shift'}
                           </kbd>
                           {' + '}
                         </>
                       )}
-                      <kbd className="rounded border border-amber-400/50 bg-amber-400/15 px-1.5 py-0.5 font-mono-key text-[11px] font-semibold text-amber-300">
+                      <kbd className="rounded border border-[#005522]/30 bg-emerald-50 px-1.5 py-0.5 font-mono-key text-[11px] font-semibold text-[#005522] dark:border-emerald-500/40 dark:bg-emerald-950/60 dark:text-emerald-300">
                         {nextHint.key.qwerty}
                       </kbd>
                     </span>
                   ) : (
-                    <span className="text-xs text-amber-300">
+                    <span className="text-xs text-amber-700 dark:text-amber-300">
                       (Not on Kedmanee — switch Virtual Thai OFF to type directly)
                     </span>
                   )}
                 </div>
 
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-400 dark:text-slate-500">
                   {startTime
                     ? 'Keep typing…'
                     : virtualThai
@@ -483,7 +603,7 @@ export function App() {
           showQwerty={showQwerty}
           showFingerColors={showFingerColors}
         />
-      </div>
+      </main>
 
       {/* Text Library & Custom Text Modal */}
       <LibraryModal

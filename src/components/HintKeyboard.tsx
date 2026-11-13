@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import {
   type Finger,
   KEDMANEE_ROWS,
@@ -14,15 +14,15 @@ interface HintKeyboardProps {
 }
 
 const FINGER_CLASSES: Record<Finger, string> = {
-  'l-pinky': 'border-rose-500/35 bg-rose-950/20',
-  'l-ring': 'border-orange-500/35 bg-orange-950/20',
-  'l-middle': 'border-amber-500/35 bg-amber-950/20',
-  'l-index': 'border-emerald-500/35 bg-emerald-950/20',
-  'r-index': 'border-teal-500/35 bg-teal-950/20',
-  'r-middle': 'border-sky-500/35 bg-sky-950/20',
-  'r-ring': 'border-indigo-500/35 bg-indigo-950/20',
-  'r-pinky': 'border-purple-500/35 bg-purple-950/20',
-  thumb: 'border-slate-600/60 bg-slate-800/70',
+  'l-pinky': 'border-rose-300 bg-rose-50/80 text-slate-800 dark:border-rose-500/40 dark:bg-rose-950/35 dark:text-slate-100',
+  'l-ring': 'border-orange-300 bg-orange-50/80 text-slate-800 dark:border-orange-500/40 dark:bg-orange-950/35 dark:text-slate-100',
+  'l-middle': 'border-amber-300 bg-amber-50/80 text-slate-800 dark:border-amber-500/40 dark:bg-amber-950/35 dark:text-slate-100',
+  'l-index': 'border-emerald-300 bg-emerald-50/80 text-slate-800 dark:border-emerald-500/40 dark:bg-emerald-950/35 dark:text-slate-100',
+  'r-index': 'border-teal-300 bg-teal-50/80 text-slate-800 dark:border-teal-500/40 dark:bg-teal-950/35 dark:text-slate-100',
+  'r-middle': 'border-sky-300 bg-sky-50/80 text-slate-800 dark:border-sky-500/40 dark:bg-sky-950/35 dark:text-slate-100',
+  'r-ring': 'border-indigo-300 bg-indigo-50/80 text-slate-800 dark:border-indigo-500/40 dark:bg-indigo-950/35 dark:text-slate-100',
+  'r-pinky': 'border-purple-300 bg-purple-50/80 text-slate-800 dark:border-purple-500/40 dark:bg-purple-950/35 dark:text-slate-100',
+  thumb: 'border-slate-300 bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100',
 };
 
 const HOME_BUMP_CODES = new Set(['KeyF', 'KeyJ']);
@@ -39,27 +39,27 @@ export const HintKeyboard: React.FC<HintKeyboardProps> = ({
 
   const getKeyStyle = (key: KeyDef): string => {
     if (wrongKeyCode === key.code) {
-      return 'bg-rose-500 text-white border-rose-300 ring-2 ring-rose-400/70 shadow-md shadow-rose-500/30';
+      return 'bg-rose-600 text-white border-rose-700 ring-2 ring-rose-300 dark:ring-rose-400/70 shadow-md';
     }
     if (targetCode === key.code) {
-      return 'bg-amber-400 text-slate-950 border-amber-200 ring-2 ring-amber-300 shadow-lg shadow-amber-500/30 scale-[1.03] z-10';
+      return 'bg-[#005522] text-white border-[#003d18] ring-2 ring-emerald-400 shadow-md scale-[1.03] z-10 dark:bg-emerald-600 dark:border-emerald-400 dark:ring-emerald-300';
     }
     if (shiftCode === key.code) {
-      return 'bg-sky-400 text-slate-950 border-sky-200 ring-2 ring-sky-300 shadow-lg shadow-sky-500/30 scale-[1.02] z-10';
+      return 'bg-amber-400 text-slate-950 border-amber-500 ring-2 ring-amber-300 shadow-md scale-[1.02] z-10';
     }
     if (key.isModifier) {
-      return 'bg-slate-800/80 text-slate-400 border-slate-700/80';
+      return 'bg-slate-200/90 text-slate-600 border-slate-300 shadow-xs dark:bg-slate-800/80 dark:text-slate-400 dark:border-slate-700';
     }
     if (showFingerColors) {
-      return `${FINGER_CLASSES[key.finger]} text-slate-200`;
+      return `${FINGER_CLASSES[key.finger]} shadow-xs`;
     }
-    return 'bg-slate-800/95 text-slate-200 border-slate-700/90';
+    return 'bg-white text-slate-800 border-slate-300 shadow-xs dark:bg-slate-800/95 dark:text-slate-100 dark:border-slate-700';
   };
 
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none select-none w-full rounded-2xl border border-slate-800 bg-slate-900/90 p-2.5 sm:p-3.5 shadow-xl"
+      className="pointer-events-none select-none w-full rounded-2xl border border-slate-200 bg-slate-100 p-2.5 sm:p-3.5 shadow-sm dark:border-slate-800 dark:bg-slate-900/90"
     >
       <div className="flex flex-col gap-1.5 sm:gap-2">
         {KEDMANEE_ROWS.map((row, rowIdx) => (
@@ -91,7 +91,7 @@ export const HintKeyboard: React.FC<HintKeyboardProps> = ({
                     <div className="flex h-full items-center justify-center">
                       <span
                         className={`text-[11px] sm:text-xs font-medium uppercase tracking-widest ${
-                          isTarget ? 'font-bold text-slate-950' : 'text-slate-400'
+                          isTarget ? 'font-bold text-white' : 'text-slate-500 dark:text-slate-400'
                         }`}
                       >
                         Space
@@ -104,10 +104,10 @@ export const HintKeyboard: React.FC<HintKeyboardProps> = ({
                         <span
                           className={`font-thai text-[11px] sm:text-xs leading-none ${
                             isTarget && isShifted
-                              ? 'font-bold text-slate-950 scale-110'
+                              ? 'font-bold text-white scale-110'
                               : isTarget
-                              ? 'text-slate-800/70'
-                              : 'text-slate-400'
+                              ? 'text-emerald-200/75'
+                              : 'text-slate-400 dark:text-slate-400'
                           }`}
                         >
                           {key.shifted}
@@ -119,7 +119,7 @@ export const HintKeyboard: React.FC<HintKeyboardProps> = ({
                         {showQwerty ? (
                           <span
                             className={`font-mono-key text-[9px] sm:text-[10px] leading-none ${
-                              isTarget ? 'text-slate-800/80 font-semibold' : 'text-slate-500'
+                              isTarget ? 'text-emerald-200/90 font-semibold' : 'text-slate-400 dark:text-slate-500'
                             }`}
                           >
                             {key.qwerty}
@@ -131,10 +131,10 @@ export const HintKeyboard: React.FC<HintKeyboardProps> = ({
                         <span
                           className={`font-thai text-sm sm:text-base font-semibold leading-none ${
                             isTarget && !isShifted
-                              ? 'text-slate-950 font-bold'
+                              ? 'text-white font-bold'
                               : isTarget
-                              ? 'text-slate-800/70'
-                              : 'text-slate-100'
+                              ? 'text-emerald-200/75'
+                              : 'text-slate-800 dark:text-slate-100'
                           }`}
                         >
                           {key.unshifted}
@@ -145,7 +145,7 @@ export const HintKeyboard: React.FC<HintKeyboardProps> = ({
                       {HOME_BUMP_CODES.has(key.code) && (
                         <span
                           className={`absolute bottom-0.5 left-1/2 h-0.5 w-3 -translate-x-1/2 rounded-full ${
-                            isTarget ? 'bg-slate-900/60' : 'bg-slate-500/70'
+                            isTarget ? 'bg-white/75' : 'bg-slate-400/70 dark:bg-slate-500/70'
                           }`}
                         />
                       )}
@@ -159,18 +159,18 @@ export const HintKeyboard: React.FC<HintKeyboardProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 px-1 text-[11px] text-slate-400">
+      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 px-1 text-[11px] text-slate-500 dark:text-slate-400">
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-amber-400 ring-1 ring-amber-300" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-[#005522] dark:bg-emerald-600 ring-1 ring-emerald-400" />
             Next key
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-sky-400 ring-1 ring-sky-300" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-amber-400 ring-1 ring-amber-500" />
             Hold Shift
           </span>
         </div>
-        <span className="text-slate-500">Thai Kedmanee (Visual Hint Only)</span>
+        <span className="text-slate-400 dark:text-slate-500">Thai Kedmanee (Visual Hint Only)</span>
       </div>
     </div>
   );

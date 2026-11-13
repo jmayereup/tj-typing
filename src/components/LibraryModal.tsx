@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import type React from 'react';
+import { useMemo, useState } from 'react';
 import { BookOpen, Plus, Trash2, X, Play, AlertTriangle } from 'lucide-react';
 import {
   BUILTIN_TEXTS,
@@ -77,25 +78,25 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 dark:bg-slate-950/75 p-4 backdrop-blur-xs"
       onClick={onClose}
     >
       <div
-        className="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl"
+        className="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-[#005522] px-5 py-4 text-white">
           <div className="flex items-center gap-2.5">
-            <BookOpen className="h-5 w-5 text-amber-400" />
-            <h2 className="text-lg font-semibold text-slate-100">
-              Text Library & Custom Texts
+            <BookOpen className="h-5 w-5 text-emerald-200" />
+            <h2 className="font-serif text-lg font-semibold">
+              Text Library &amp; Custom Texts
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-100"
+            className="rounded-lg p-1.5 text-white/80 hover:bg-white/15 hover:text-white"
             aria-label="Close modal"
           >
             <X className="h-5 w-5" />
@@ -103,14 +104,14 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
         </div>
 
         {/* Top Tabs */}
-        <div className="flex border-b border-slate-800 px-5">
+        <div className="flex border-b border-slate-200 bg-slate-50 px-5 dark:border-slate-800 dark:bg-slate-900/70">
           <button
             type="button"
             onClick={() => setActiveTab('browse')}
             className={`border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
               activeTab === 'browse'
-                ? 'border-amber-400 text-amber-300'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-[#005522] text-[#005522] dark:border-emerald-400 dark:text-emerald-300'
+                : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             Browse Library ({allTexts.length})
@@ -120,8 +121,8 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
             onClick={() => setActiveTab('add')}
             className={`inline-flex items-center gap-1.5 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
               activeTab === 'add'
-                ? 'border-amber-400 text-amber-300'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-[#005522] text-[#005522] dark:border-emerald-400 dark:text-emerald-300'
+                : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
             }`}
           >
             <Plus className="h-4 w-4" />
@@ -133,14 +134,14 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
         {activeTab === 'browse' ? (
           <div className="flex flex-1 flex-col overflow-hidden">
             {/* Category Filter Pills */}
-            <div className="flex flex-wrap gap-1.5 border-b border-slate-800/70 bg-slate-900/50 px-5 py-3">
+            <div className="flex flex-wrap gap-1.5 border-b border-slate-200 bg-slate-50/70 px-5 py-3 dark:border-slate-800 dark:bg-slate-900/50">
               <button
                 type="button"
                 onClick={() => setSelectedCategory('all')}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   selectedCategory === 'all'
-                    ? 'bg-amber-400 text-slate-950'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-[#005522] text-white dark:bg-emerald-600'
+                    : 'bg-slate-200/80 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                 }`}
               >
                 All
@@ -152,8 +153,8 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                   onClick={() => setSelectedCategory(cat)}
                   className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                     selectedCategory === cat
-                      ? 'bg-amber-400 text-slate-950'
-                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      ? 'bg-[#005522] text-white dark:bg-emerald-600'
+                      : 'bg-slate-200/80 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                   }`}
                 >
                   {CATEGORY_LABELS[cat]}
@@ -165,12 +166,12 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
             {/* Text Cards */}
             <div className="flex-1 space-y-2.5 overflow-y-auto p-5">
               {filteredTexts.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-700 p-8 text-center text-sm text-slate-400">
+                <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
                   No texts in this category yet.{' '}
                   <button
                     type="button"
                     onClick={() => setActiveTab('add')}
-                    className="font-medium text-amber-400 hover:underline"
+                    className="font-medium text-[#005522] hover:underline dark:text-emerald-400"
                   >
                     Add your own Thai text
                   </button>
@@ -184,8 +185,8 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                       key={item.id}
                       className={`group flex items-start justify-between gap-4 rounded-xl border p-3.5 transition-colors ${
                         isActive
-                          ? 'border-amber-400/60 bg-amber-500/10'
-                          : 'border-slate-800 bg-slate-800/40 hover:border-slate-700 hover:bg-slate-800/70'
+                          ? 'border-[#005522]/40 bg-emerald-50/70 dark:border-emerald-500/50 dark:bg-emerald-950/30'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:border-slate-700 dark:hover:bg-slate-800/70'
                       }`}
                     >
                       <button
@@ -197,17 +198,19 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                         className="flex-1 text-left"
                       >
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-medium text-slate-100">{item.title}</span>
-                          <span className="rounded bg-slate-800 px-2 py-0.5 text-[11px] text-slate-400">
+                          <span className="font-semibold text-slate-800 dark:text-slate-100">
+                            {item.title}
+                          </span>
+                          <span className="rounded bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                             {CATEGORY_LABELS[item.category]}
                           </span>
                           {isActive && (
-                            <span className="rounded bg-amber-400/20 px-2 py-0.5 text-[11px] font-medium text-amber-300">
+                            <span className="rounded bg-[#005522] px-2 py-0.5 text-[11px] font-medium text-white dark:bg-emerald-600">
                               Active
                             </span>
                           )}
                         </div>
-                        <p className="font-thai mt-1.5 line-clamp-2 text-base text-slate-300">
+                        <p className="font-thai mt-1.5 line-clamp-2 text-base text-slate-600 dark:text-slate-300">
                           {item.text}
                         </p>
                       </button>
@@ -216,7 +219,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                         <button
                           type="button"
                           onClick={() => onDeleteCustomText(item.id)}
-                          className="rounded-lg p-2 text-slate-500 hover:bg-rose-500/15 hover:text-rose-400"
+                          className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/15 dark:hover:text-rose-400"
                           title="Delete custom text"
                           aria-label={`Delete ${item.title}`}
                         >
@@ -232,7 +235,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
         ) : (
           <form onSubmit={handleSaveAndPractice} className="flex-1 space-y-4 overflow-y-auto p-5">
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Title (optional)
               </label>
               <input
@@ -240,12 +243,12 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
                 placeholder="e.g., Thai News Snippet or Vocabulary List"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-400 focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#005522] focus:outline-none focus:ring-2 focus:ring-[#005522]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-400/20"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-slate-400">
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Thai Text to Practice
               </label>
               <textarea
@@ -253,10 +256,10 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                 value={customBody}
                 onChange={(e) => setCustomBody(e.target.value)}
                 placeholder="Paste or type short Thai text here... e.g. วันนี้อากาศดีมาก"
-                className="font-thai w-full rounded-xl border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-base text-slate-100 placeholder:text-slate-500 focus:border-amber-400 focus:outline-none"
+                className="font-thai w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base text-slate-800 placeholder:text-slate-400 focus:border-[#005522] focus:outline-none focus:ring-2 focus:ring-[#005522]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-emerald-400 dark:focus:ring-emerald-400/20"
                 required
               />
-              <div className="mt-1.5 flex items-center justify-between text-xs text-slate-400">
+              <div className="mt-1.5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>
                   {Array.from(normalizedCustom).length} characters (automatically normalized for Kedmanee)
                 </span>
@@ -264,16 +267,16 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
             </div>
 
             {unsupportedChars.length > 0 && (
-              <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+              <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <p className="font-medium">
+                  <p className="font-semibold">
                     Some characters are not on the standard Thai Kedmanee layout:
                   </p>
-                  <p className="mt-1 font-mono text-amber-300">
+                  <p className="mt-1 font-mono text-amber-800 dark:text-amber-300">
                     {unsupportedChars.map((c) => `"${c}"`).join(', ')}
                   </p>
-                  <p className="mt-1 text-amber-200/80">
+                  <p className="mt-1 text-amber-700 dark:text-amber-200/80">
                     You may want to remove Latin letters or special symbols before practicing.
                   </p>
                 </div>
@@ -285,7 +288,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
                 type="button"
                 disabled={!normalizedCustom}
                 onClick={handleQuickPractice}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700 disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 <Play className="h-4 w-4" />
                 Practice Once (Don&apos;t Save)
@@ -293,7 +296,7 @@ export const LibraryModal: React.FC<LibraryModalProps> = ({
               <button
                 type="submit"
                 disabled={!normalizedCustom}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-amber-300 disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#005522] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#00441b] disabled:opacity-40 dark:bg-emerald-600 dark:hover:bg-emerald-500"
               >
                 <Plus className="h-4 w-4" />
                 Save &amp; Practice
